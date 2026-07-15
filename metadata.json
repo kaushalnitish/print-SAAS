@@ -1,0 +1,6 @@
+{
+  "name": "PrintFlow Cloud",
+  "description": "Premium multi-tenant SaaS customer portal for local print shops, providing frictionless mobile file uploading, print settings customization, and live order tracking.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
