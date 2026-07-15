@@ -19,9 +19,7 @@ export const LandingPage: React.FC = () => {
 
   const handleStartTrial = (e: React.MouseEvent) => {
     e.preventDefault();
-    // Bypass authentication by logging into the Demo Shop
-    login('demo@printflow.cloud', 'demo');
-    navigate('/dashboard');
+    navigate('/register');
   };
 
   const steps = [

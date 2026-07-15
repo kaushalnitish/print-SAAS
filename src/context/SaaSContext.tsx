@@ -120,14 +120,15 @@ export function SaaSProvider({ children }: { children: React.ReactNode }) {
           // Dynamic Storage Bucket verification
           await supabaseStorage.ensureBucketExists();
           
+          // Always fetch public shops first, so the public customer portal works in any browser tab!
+          const dbShops = await supabaseDb.fetchShops();
+          setShops(dbShops);
+
           const user = await supabaseAuth.getCurrentUser();
           if (user) {
             setActiveOwner({ name: user.name, email: user.email, phone: user.phone });
-            const dbShops = await supabaseDb.fetchShops();
             
             if (dbShops.length > 0) {
-              setShops(dbShops);
-              
               // Restore previously selected shop if matched
               const saved = localStorage.getItem('printflow_current_shop');
               if (saved) {
@@ -142,16 +143,30 @@ export function SaaSProvider({ children }: { children: React.ReactNode }) {
                 setCurrentShopState(dbShops[0]);
               }
             } else {
-              setShops([]);
               setCurrentShopState(null);
             }
           } else {
-            // Unauthenticated in Supabase, restore local MVP fallback states so the preview doesn't block!
-            restoreLocalFallback();
+            // Unauthenticated but Supabase is configured (e.g. walk-in Customer Portal user).
+            // Do NOT call restoreLocalFallback() or clear shops, as we want to keep the public dbShops loaded!
+            const saved = localStorage.getItem('printflow_current_shop');
+            if (saved && dbShops.length > 0) {
+              try {
+                const parsed = JSON.parse(saved);
+                const matched = dbShops.find(s => s.id === parsed.id || s.shopId === parsed.shopId);
+                setCurrentShopState(matched || null);
+              } catch {
+                setCurrentShopState(null);
+              }
+            } else {
+              setCurrentShopState(null);
+            }
+            setActiveOwner(null);
           }
         } catch (error) {
-          console.error('Failed to initialize Supabase connection, using local fallback:', error);
-          restoreLocalFallback();
+          console.error('Failed to initialize Supabase connection:', error);
+          setShops([]);
+          setCurrentShopState(null);
+          setActiveOwner(null);
         } finally {
           setSupabaseLoading(false);
         }

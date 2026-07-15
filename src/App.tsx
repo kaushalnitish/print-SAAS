@@ -3,7 +3,7 @@ import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { SaaSProvider } from './context/SaaSContext';
 import { PrintFlowProvider } from './context/PrintFlowContext';
 import { CustomerLayout } from './layouts/CustomerLayout';
-import { isSupabaseConfigured } from './lib/supabase';
+import { isSupabaseConfigured, supabase } from './lib/supabase';
 import { WifiOff, Mail, ArrowRight, Loader2, ArrowUpRight } from 'lucide-react';
 
 // Walk-in Customer Portal Screens
@@ -31,26 +31,43 @@ import { DashboardSubscription } from './screens/saas/DashboardSubscription';
 import { DashboardAgent } from './screens/saas/DashboardAgent';
 
 export default function App() {
-  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [isOnline, setIsOnline] = useState(true);
   const [isRetrying, setIsRetrying] = useState(false);
   const [retryMessage, setRetryMessage] = useState<string | null>(null);
   const [bypassOfflineGuard, setBypassOfflineGuard] = useState(false);
 
-  // Monitor network status automatically to dismiss page when internet returns
+  // Monitor actual Supabase connectivity in real-time instead of unreliable browser onLine flags
   useEffect(() => {
-    const handleOnline = () => {
-      setIsOnline(true);
-    };
-    const handleOffline = () => {
-      setIsOnline(false);
+    let active = true;
+
+    const verifySupabaseConnection = async () => {
+      if (!isSupabaseConfigured || !supabase) {
+        if (active) setIsOnline(false);
+        return;
+      }
+
+      try {
+        const { error } = await supabase.from('shops').select('id').limit(1);
+        if (active) {
+          if (error && (error.message.includes('fetch') || error.message.includes('Network') || error.message.includes('Failed to fetch') || error.message.includes('network'))) {
+            setIsOnline(false);
+          } else {
+            setIsOnline(true);
+          }
+        }
+      } catch (err) {
+        if (active) setIsOnline(false);
+      }
     };
 
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
+    verifySupabaseConnection();
+
+    // Automatically check connection every 30 seconds
+    const interval = setInterval(verifySupabaseConnection, 30000);
 
     return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
+      active = false;
+      clearInterval(interval);
     };
   }, []);
 
@@ -73,17 +90,31 @@ export default function App() {
   }, []);
 
   // Manual reconnect handler
-  const handleRetry = () => {
+  const handleRetry = async () => {
     setIsRetrying(true);
     setRetryMessage(null);
-    setTimeout(() => {
-      const online = navigator.onLine;
-      setIsOnline(online);
+
+    if (!isSupabaseConfigured || !supabase) {
+      setIsOnline(false);
+      setRetryMessage('Supabase is not configured.');
       setIsRetrying(false);
-      if (!online) {
+      return;
+    }
+
+    try {
+      const { error } = await supabase.from('shops').select('id').limit(1);
+      if (error && (error.message.includes('fetch') || error.message.includes('Network') || error.message.includes('Failed to fetch') || error.message.includes('network'))) {
+        setIsOnline(false);
         setRetryMessage('We still cannot establish a connection. Please verify your internet and try again.');
+      } else {
+        setIsOnline(true);
       }
-    }, 1200);
+    } catch (err) {
+      setIsOnline(false);
+      setRetryMessage('We still cannot establish a connection. Please verify your internet and try again.');
+    } finally {
+      setIsRetrying(false);
+    }
   };
 
   // Open email client for customer support
