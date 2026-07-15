@@ -131,7 +131,7 @@ export default function App() {
   // Decision rule: Show offline screen if:
   // - Cloud connection is missing AND we haven't bypassed the offline guard
   // - OR browser reports being completely offline (no internet connection)
-  const shouldShowOfflineScreen = (!isSupabaseConfigured && !bypassOfflineGuard) || !isOnline;
+  const shouldShowOfflineScreen = (!isSupabaseConfigured || !isOnline) && !bypassOfflineGuard;
 
   if (shouldShowOfflineScreen) {
     return (
