@@ -2,12 +2,22 @@
 // GLOBAL APP CONFIGURATION
 // =====================================================================
 
+declare global {
+  interface ImportMeta {
+    readonly env: {
+      readonly VITE_SUPABASE_URL?: string;
+      readonly VITE_SUPABASE_ANON_KEY?: string;
+      [key: string]: any;
+    };
+  }
+}
+
 export const APP_CONFIG = {
   appName: 'PrintFlow Cloud',
   version: '2.0.0-sprint2',
   api: {
-    supabaseUrl: (import.meta as any).env.VITE_SUPABASE_URL || '',
-    supabaseAnonKey: (import.meta as any).env.VITE_SUPABASE_ANON_KEY || '',
+    supabaseUrl: import.meta.env.VITE_SUPABASE_URL || '',
+    supabaseAnonKey: import.meta.env.VITE_SUPABASE_ANON_KEY || '',
     isValid: (): boolean => {
       const url = APP_CONFIG.api.supabaseUrl;
       const key = APP_CONFIG.api.supabaseAnonKey;
