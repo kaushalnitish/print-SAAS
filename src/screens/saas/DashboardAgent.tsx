@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import { useSaaS } from '../../context/SaaSContext';
 import { Card } from '../../components/Card';
 import { 
@@ -6,7 +7,7 @@ import {
   HardDrive, PlayCircle, ArrowRight, Printer, Settings, Sliders, 
   AlertTriangle, List, Power, FileText, CheckCircle2, RefreshCw, 
   Layers, Shield, Eye, HelpCircle, Activity, Info, LogIn, ExternalLink,
-  ChevronRight, AlertCircle, Trash2, PlusCircle, Check
+  ChevronRight, AlertCircle, Trash2, PlusCircle, Check, Code2
 } from 'lucide-react';
 
 interface MockPrinter {
@@ -494,12 +495,22 @@ export const DashboardAgent: React.FC = () => {
           </p>
         </div>
 
-        {/* Real-time sync status pill */}
-        <div className="flex items-center gap-2 bg-white border border-slate-150 px-4.5 py-2.5 rounded-2xl shadow-sm">
-          <span className={`w-2.5 h-2.5 rounded-full ${currentShop.agentStatus === 'connected' ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
-          <span className="text-xs font-black text-slate-800">
-            Agent Status: {currentShop.agentStatus === 'connected' ? 'Connected & Spooling' : 'Disconnected'}
-          </span>
+        {/* Real-time sync status pill & Admin Console Link */}
+        <div className="flex items-center gap-3">
+          <Link
+            to="/dashboard/admin"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-2xl shadow-sm transition-colors"
+          >
+            <Shield className="w-4 h-4 text-indigo-400" />
+            <span>Admin Console</span>
+          </Link>
+
+          <div className="flex items-center gap-2 bg-white border border-slate-150 px-4.5 py-2 rounded-2xl shadow-sm">
+            <span className={`w-2.5 h-2.5 rounded-full ${currentShop.agentStatus === 'connected' ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
+            <span className="text-xs font-black text-slate-800">
+              Agent: {currentShop.agentStatus === 'connected' ? 'Connected' : 'Disconnected'}
+            </span>
+          </div>
         </div>
       </div>
 

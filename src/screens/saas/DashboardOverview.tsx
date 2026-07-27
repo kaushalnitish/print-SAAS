@@ -1,15 +1,16 @@
 import React from 'react';
 import { 
   Printer, Clock, CheckCircle2, AlertCircle, FileText, 
-  Layers, Palette, Users, TrendingUp, RefreshCw, Smartphone
+  Layers, Palette, TrendingUp, RefreshCw, Smartphone
 } from 'lucide-react';
 import { useSaaS } from '../../context/SaaSContext';
 import { Card } from '../../components/Card';
 import { StatusBadge } from '../../components/StatusBadge';
 import { TrackingStatus } from '../../types';
+import { OwnerAnalyticsCard } from '../../components/analytics/OwnerAnalyticsCard';
 
 export const DashboardOverview: React.FC = () => {
-  const { currentShop, updateJobStatus, isSupabaseConfigured } = useSaaS();
+  const { currentShop, updateJobStatus } = useSaaS();
 
   if (!currentShop) {
     return (
@@ -108,6 +109,9 @@ export const DashboardOverview: React.FC = () => {
           </div>
         </Card>
       </div>
+
+      {/* Primary Print Jobs Analytics Engine */}
+      <OwnerAnalyticsCard currentShop={currentShop} />
 
       {/* Main Queue Management Section */}
       <div className="space-y-4">

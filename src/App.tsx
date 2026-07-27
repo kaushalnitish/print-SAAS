@@ -29,6 +29,8 @@ import { DashboardShops } from './screens/saas/DashboardShops';
 import { DashboardSettings } from './screens/saas/DashboardSettings';
 import { DashboardSubscription } from './screens/saas/DashboardSubscription';
 import { DashboardAgent } from './screens/saas/DashboardAgent';
+import { DashboardDeveloper } from './screens/saas/DashboardDeveloper';
+import { DashboardAdminConsole } from './screens/saas/DashboardAdminConsole';
 
 export default function App() {
   const [isOnline, setIsOnline] = useState(true);
@@ -229,6 +231,9 @@ export default function App() {
               <Route path="settings" element={<DashboardSettings />} />
               <Route path="subscription" element={<DashboardSubscription />} />
               <Route path="agent" element={<DashboardAgent />} />
+              <Route path="developer" element={<DashboardDeveloper />} />
+              <Route path="admin" element={<DashboardAdminConsole />} />
+              <Route path="admin-console" element={<DashboardAdminConsole />} />
             </Route>
 
             {/* 3. Customer Portal Routes - isolated by unique shop slugs */}

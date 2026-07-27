@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link, Outlet } from 'react-router-dom';
 import { 
   Printer, LayoutDashboard, ListOrdered, Building2, 
-  Settings, CreditCard, LogOut, Menu, X, ChevronDown, User, QrCode, Cpu
+  Settings, CreditCard, LogOut, Menu, X, ChevronDown, User, QrCode, Cpu, Code2, Shield
 } from 'lucide-react';
 import { useSaaS } from '../../context/SaaSContext';
 
@@ -29,10 +29,12 @@ export const DashboardShell: React.FC = () => {
   };
 
   const navItems = [
+    { label: 'Admin Console', path: '/dashboard/admin', icon: <Shield className="w-5 h-5 text-indigo-400" /> },
     { label: 'Overview', path: '/dashboard', icon: <LayoutDashboard className="w-5 h-5" /> },
     { label: 'Print Queue', path: '/dashboard/queue', icon: <ListOrdered className="w-5 h-5" /> },
     { label: 'Shops Manager', path: '/dashboard/shops', icon: <Building2 className="w-5 h-5" /> },
     { label: 'Desktop Agent', path: '/dashboard/agent', icon: <Cpu className="w-5 h-5" /> },
+    { label: 'Developer Mode', path: '/dashboard/developer', icon: <Code2 className="w-5 h-5" /> },
     { label: 'Billing / Subscription', path: '/dashboard/subscription', icon: <CreditCard className="w-5 h-5" /> },
     { label: 'Shop Settings', path: '/dashboard/settings', icon: <Settings className="w-5 h-5" /> },
   ];
