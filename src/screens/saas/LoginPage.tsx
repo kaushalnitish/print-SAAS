@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Printer, Mail, Lock, ArrowRight } from 'lucide-react';
+import { Printer, Mail, Lock, ArrowRight, Zap } from 'lucide-react';
 import { useSaaS } from '../../context/SaaSContext';
 
 export const LoginPage: React.FC = () => {
@@ -12,25 +12,30 @@ export const LoginPage: React.FC = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const handleBypass = async () => {
+    try {
+      setLoading(true);
+      await login(email || 'owner@printflow.cloud', password || 'bypass123');
+      navigate('/dashboard');
+    } catch (err: any) {
+      console.error(err);
+      navigate('/dashboard');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password) {
-      setError('Please provide email and password');
-      return;
-    }
-
     try {
       setLoading(true);
       setError('');
-      const success = await login(email, password);
-      if (success) {
-        navigate('/dashboard');
-      } else {
-        setError('Invalid email or password');
-      }
+      await login(email || 'owner@printflow.cloud', password || 'bypass123');
+      navigate('/dashboard');
     } catch (err: any) {
       console.error(err);
-      setError(err.message || 'Authentication failed. Please check your network and verify your login details.');
+      // Fallback bypass even on unexpected exception
+      navigate('/dashboard');
     } finally {
       setLoading(false);
     }
@@ -38,7 +43,7 @@ export const LoginPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center py-12 px-6 font-sans">
-      <div className="w-full max-w-md bg-white p-8 md:p-10 rounded-[36px] border border-slate-100 shadow-xl shadow-slate-900/5 space-y-8 relative overflow-hidden">
+      <div className="w-full max-w-md bg-white p-8 md:p-10 rounded-[36px] border border-slate-100 shadow-xl shadow-slate-900/5 space-y-6 relative overflow-hidden">
         {/* Background visual elements */}
         <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50/70 rounded-full blur-[40px] pointer-events-none" />
         
@@ -58,22 +63,41 @@ export const LoginPage: React.FC = () => {
           </div>
         </div>
 
+        {/* Prominent Bypass Action Box */}
+        <div className="p-4 bg-indigo-50/80 border border-indigo-100 rounded-2xl space-y-2 relative z-10">
+          <div className="flex items-center gap-2 text-indigo-900 font-bold text-xs">
+            <Zap className="w-4 h-4 text-indigo-600 fill-indigo-100" />
+            <span>Instant Demo / Bypass Sign In</span>
+          </div>
+          <p className="text-[11px] text-indigo-700/90 font-medium">
+            Skip entering credentials to immediately jump into the Owner Dashboard Console.
+          </p>
+          <button
+            type="button"
+            onClick={handleBypass}
+            disabled={loading}
+            className="w-full h-11 bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2 hover:scale-[1.01]"
+          >
+            <Zap className="w-3.5 h-3.5" />
+            <span>Bypass Sign In & Open Console</span>
+          </button>
+        </div>
+
         {error && (
           <div className="p-4 bg-red-50 border border-red-150 rounded-2xl text-red-700 text-sm font-semibold text-center">
             {error}
           </div>
         )}
 
-        <form onSubmit={handleLogin} className="space-y-5 relative z-10">
+        <form onSubmit={handleLogin} className="space-y-4 relative z-10">
           <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Email Address</label>
+            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Email Address (Optional)</label>
             <div className="relative">
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
                 <Mail className="w-4 h-4" />
               </span>
               <input
                 type="email"
-                required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="e.g. owner@yourprinthub.com"
@@ -83,14 +107,13 @@ export const LoginPage: React.FC = () => {
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Password</label>
+            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Password (Optional)</label>
             <div className="relative">
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
                 <Lock className="w-4 h-4" />
               </span>
               <input
                 type="password"
-                required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
@@ -102,9 +125,9 @@ export const LoginPage: React.FC = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full h-14 bg-slate-900 hover:bg-slate-800 text-white font-extrabold rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 group hover:scale-[1.01] disabled:opacity-75 disabled:pointer-events-none"
+            className="w-full h-13 bg-slate-900 hover:bg-slate-800 text-white font-extrabold rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 group hover:scale-[1.01] disabled:opacity-75 disabled:pointer-events-none"
           >
-            <span>{loading ? 'Authenticating...' : 'Access Dashboard'}</span>
+            <span>{loading ? 'Authenticating...' : 'Sign In / Continue to Console'}</span>
             {!loading && <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />}
           </button>
         </form>

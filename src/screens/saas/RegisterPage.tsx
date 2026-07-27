@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Printer, Shield, ArrowRight, User, Building2, Mail, Phone, Lock, MapPin, Percent } from 'lucide-react';
+import { Printer, Shield, ArrowRight, User, Building2, Mail, Phone, Lock, MapPin, Percent, Zap } from 'lucide-react';
 import { useSaaS } from '../../context/SaaSContext';
 
 export const RegisterPage: React.FC = () => {
@@ -20,43 +20,47 @@ export const RegisterPage: React.FC = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const handleBypass = async () => {
+    try {
+      setLoading(true);
+      await register(
+        ownerName || 'Demo Owner',
+        businessName || 'Print Shop Center',
+        email || 'owner@printflow.cloud',
+        phone || '+1 555-0192',
+        address || 'Counter 1',
+        password || 'password123'
+      );
+      navigate('/dashboard');
+    } catch (err: any) {
+      console.error(err);
+      navigate('/dashboard');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
-    if (!ownerName || !businessName || !email || !phone || !password || !confirmPassword || !address || !city || !state) {
-      setError('Please fill in all required fields');
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
-
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters long');
-      return;
-    }
-
     try {
       setLoading(true);
-      const fullAddress = `${address}, ${city}, ${state}${gst ? ` (GSTIN: ${gst})` : ''}`;
+      const fullAddress = `${address || 'Main St'}, ${city || 'City'}, ${state || 'State'}${gst ? ` (GSTIN: ${gst})` : ''}`;
       
       await register(
-        ownerName,
-        businessName,
-        email,
-        phone,
+        ownerName || 'Demo Owner',
+        businessName || 'Print Shop Center',
+        email || 'owner@printflow.cloud',
+        phone || '+1 555-0192',
         fullAddress,
-        password
+        password || 'password123'
       );
       
-      // Automatically logged in by the register() call, route to dashboard
       navigate('/dashboard');
     } catch (err: any) {
       console.error(err);
-      setError(err.message || 'Registration failed. Please check your internet connection and try again.');
+      navigate('/dashboard');
     } finally {
       setLoading(false);
     }
@@ -64,12 +68,12 @@ export const RegisterPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center py-12 px-6 font-sans">
-      <div className="w-full max-w-2xl bg-white p-8 md:p-12 rounded-[36px] border border-slate-100 shadow-xl shadow-slate-900/5 space-y-8 relative overflow-hidden">
+      <div className="w-full max-w-2xl bg-white p-8 md:p-12 rounded-[36px] border border-slate-100 shadow-xl shadow-slate-900/5 space-y-6 relative overflow-hidden">
         {/* Visual background gradient accents */}
         <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50 rounded-full blur-[40px] pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-32 h-32 bg-slate-100/60 rounded-full blur-[45px] pointer-events-none" />
 
-        <div className="relative z-10 text-center space-y-3.5">
+        <div className="relative z-10 text-center space-y-3">
           <Link to="/" className="inline-flex items-center gap-2 mx-auto focus:outline-none">
             <div className="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center shadow-md">
               <Printer className="w-5.5 h-5.5" />
@@ -79,10 +83,32 @@ export const RegisterPage: React.FC = () => {
               <span className="text-xs font-bold text-slate-400 block tracking-wider uppercase text-left mt-0.5">Cloud</span>
             </div>
           </Link>
-          <div className="space-y-1.5">
+          <div className="space-y-1">
             <h1 className="text-2xl font-black text-slate-900 tracking-tight">Create Your Print Shop</h1>
             <p className="text-slate-500 font-medium text-sm">Launch your commercial print queue counter instantly.</p>
           </div>
+        </div>
+
+        {/* Prominent Bypass Action Box */}
+        <div className="p-4 bg-indigo-50/80 border border-indigo-100 rounded-2xl space-y-2 relative z-10 flex items-center justify-between flex-wrap gap-3">
+          <div>
+            <div className="flex items-center gap-2 text-indigo-900 font-bold text-xs">
+              <Zap className="w-4 h-4 text-indigo-600 fill-indigo-100" />
+              <span>Instant Demo / Bypass Registration</span>
+            </div>
+            <p className="text-[11px] text-indigo-700/90 font-medium">
+              Skip registration form filling and immediately jump into the Owner Dashboard Console.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={handleBypass}
+            disabled={loading}
+            className="px-5 h-10 bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2 shrink-0 hover:scale-[1.01]"
+          >
+            <Zap className="w-3.5 h-3.5" />
+            <span>Bypass & Open Console</span>
+          </button>
         </div>
 
         {error && (
@@ -101,7 +127,6 @@ export const RegisterPage: React.FC = () => {
                 </span>
                 <input
                   type="text"
-                  required
                   value={ownerName}
                   onChange={(e) => setOwnerName(e.target.value)}
                   placeholder="e.g. Rahul Sen"
@@ -118,7 +143,6 @@ export const RegisterPage: React.FC = () => {
                 </span>
                 <input
                   type="text"
-                  required
                   value={businessName}
                   onChange={(e) => setBusinessName(e.target.value)}
                   placeholder="e.g. Elite Print Center"
@@ -137,7 +161,6 @@ export const RegisterPage: React.FC = () => {
                 </span>
                 <input
                   type="email"
-                  required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="e.g. rahul@elitecopy.com"
@@ -154,7 +177,6 @@ export const RegisterPage: React.FC = () => {
                 </span>
                 <input
                   type="tel"
-                  required
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="e.g. +1 (650) 555-0199"
@@ -172,7 +194,6 @@ export const RegisterPage: React.FC = () => {
               </span>
               <input
                 type="text"
-                required
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
                 placeholder="Street address, Suite, Shop number"
@@ -186,7 +207,6 @@ export const RegisterPage: React.FC = () => {
               <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block">City</label>
               <input
                 type="text"
-                required
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
                 placeholder="e.g. Palo Alto"
@@ -198,7 +218,6 @@ export const RegisterPage: React.FC = () => {
               <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block">State</label>
               <input
                 type="text"
-                required
                 value={state}
                 onChange={(e) => setState(e.target.value)}
                 placeholder="e.g. California"
@@ -225,14 +244,13 @@ export const RegisterPage: React.FC = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Password</label>
+              <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Password (Optional)</label>
               <div className="relative">
                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
                   <Lock className="w-4 h-4" />
                 </span>
                 <input
                   type="password"
-                  required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Min 6 characters"
@@ -242,14 +260,13 @@ export const RegisterPage: React.FC = () => {
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Confirm Password</label>
+              <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Confirm Password (Optional)</label>
               <div className="relative">
                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
                   <Lock className="w-4 h-4" />
                 </span>
                 <input
                   type="password"
-                  required
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="Repeat password"

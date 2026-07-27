@@ -143,30 +143,43 @@ export function SaaSProvider({ children }: { children: React.ReactNode }) {
                 setCurrentShopState(dbShops[0]);
               }
             } else {
-              setCurrentShopState(null);
+              setCurrentShopState(getDemoShop());
             }
           } else {
-            // Unauthenticated but Supabase is configured (e.g. walk-in Customer Portal user).
-            // Do NOT call restoreLocalFallback() or clear shops, as we want to keep the public dbShops loaded!
-            const saved = localStorage.getItem('printflow_current_shop');
-            if (saved && dbShops.length > 0) {
+            // Unauthenticated or auth bypassed - default to active owner so owner console is instantly accessible
+            const savedOwner = localStorage.getItem('printflow_active_owner');
+            if (savedOwner) {
               try {
-                const parsed = JSON.parse(saved);
-                const matched = dbShops.find(s => s.id === parsed.id || s.shopId === parsed.shopId);
-                setCurrentShopState(matched || null);
+                setActiveOwner(JSON.parse(savedOwner));
               } catch {
-                setCurrentShopState(null);
+                setActiveOwner({ name: 'Owner (Bypassed)', email: 'owner@printflow.cloud', phone: '+1 555-0192' });
               }
             } else {
-              setCurrentShopState(null);
+              setActiveOwner({ name: 'Owner (Bypassed)', email: 'owner@printflow.cloud', phone: '+1 555-0192' });
             }
-            setActiveOwner(null);
+
+            if (dbShops.length > 0) {
+              const saved = localStorage.getItem('printflow_current_shop');
+              if (saved) {
+                try {
+                  const parsed = JSON.parse(saved);
+                  const matched = dbShops.find(s => s.id === parsed.id || s.shopId === parsed.shopId);
+                  setCurrentShopState(matched || dbShops[0]);
+                } catch {
+                  setCurrentShopState(dbShops[0]);
+                }
+              } else {
+                setCurrentShopState(dbShops[0]);
+              }
+            } else {
+              setCurrentShopState(getDemoShop());
+            }
           }
         } catch (error) {
           console.error('Failed to initialize Supabase connection:', error);
-          setShops([]);
-          setCurrentShopState(null);
-          setActiveOwner(null);
+          setShops([getDemoShop()]);
+          setCurrentShopState(getDemoShop());
+          setActiveOwner({ name: 'Owner (Bypassed)', email: 'owner@printflow.cloud', phone: '+1 555-0192' });
         } finally {
           setSupabaseLoading(false);
         }
@@ -334,41 +347,48 @@ export function SaaSProvider({ children }: { children: React.ReactNode }) {
     if (isSupabaseConfigured) {
       try {
         setSupabaseLoading(true);
-        await supabaseAuth.signIn(email, password);
-        const user = await supabaseAuth.getCurrentUser();
-        if (user) {
-          setActiveOwner({ name: user.name, email: user.email, phone: user.phone });
-          const dbShops = await supabaseDb.fetchShops();
-          setShops(dbShops);
-          if (dbShops.length > 0) {
-            setCurrentShopState(dbShops[0]);
-          } else {
-            setCurrentShopState(null);
+        try {
+          await supabaseAuth.signIn(email, password);
+          const user = await supabaseAuth.getCurrentUser();
+          if (user) {
+            setActiveOwner({ name: user.name, email: user.email, phone: user.phone });
+            const dbShops = await supabaseDb.fetchShops();
+            setShops(dbShops);
+            if (dbShops.length > 0) {
+              setCurrentShopState(dbShops[0]);
+            } else {
+              setCurrentShopState(getDemoShop());
+            }
+            return true;
           }
-          return true;
+        } catch (authErr) {
+          console.warn('Supabase auth sign in bypassed:', authErr);
         }
-        return false;
-      } catch (err) {
-        console.error('Supabase authentication failed:', err);
-        throw err;
+
+        // Bypassed login fallback
+        const nameFromEmail = email ? email.split('@')[0] : 'Owner';
+        const formattedName = nameFromEmail.charAt(0).toUpperCase() + nameFromEmail.slice(1);
+        const demoOwner = { name: formattedName || 'Owner (Bypassed)', email: email || 'owner@printflow.cloud', phone: '+1 555-0192' };
+        setActiveOwner(demoOwner);
+        const dbShops = await supabaseDb.fetchShops().catch(() => []);
+        if (dbShops.length > 0) {
+          setShops(dbShops);
+          setCurrentShopState(dbShops[0]);
+        } else {
+          const demoShop = getDemoShop();
+          setShops([demoShop]);
+          setCurrentShopState(demoShop);
+        }
+        return true;
       } finally {
         setSupabaseLoading(false);
       }
     } else {
       // Local demo fallback
-      const shop = shops.find((s) => s.email.toLowerCase() === email.toLowerCase());
-      if (shop) {
-        setCurrentShop(shop);
-        setActiveOwner({ name: shop.ownerName, email: shop.email, phone: shop.phone });
-        return true;
-      }
-      if (email && password) {
-        const defaultShop = shops[0] || getDemoShop();
-        setCurrentShop(defaultShop);
-        setActiveOwner({ name: defaultShop.ownerName, email: defaultShop.email, phone: defaultShop.phone });
-        return true;
-      }
-      return false;
+      const defaultShop = shops[0] || getDemoShop();
+      setCurrentShop(defaultShop);
+      setActiveOwner({ name: defaultShop.ownerName, email: defaultShop.email, phone: defaultShop.phone });
+      return true;
     }
   };
 
@@ -380,10 +400,10 @@ export function SaaSProvider({ children }: { children: React.ReactNode }) {
     address: string,
     password?: string
   ): Promise<Shop> => {
-    const slug = businessName
+    const slug = (businessName || 'Print Shop')
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)/g, '');
+      .replace(/(^-|-$)/g, '') || 'my-print-shop';
     
     let finalSlug = slug;
     let counter = 1;
@@ -402,11 +422,11 @@ export function SaaSProvider({ children }: { children: React.ReactNode }) {
     const freshShop = enrichShop({
       shopId: generatedShopId,
       shopSlug: finalSlug,
-      shopName: businessName,
-      ownerName: ownerName,
-      email: email,
-      phone: phone,
-      address: address,
+      shopName: businessName || 'Print Shop',
+      ownerName: ownerName || 'Shop Owner',
+      email: email || 'owner@printflow.cloud',
+      phone: phone || '+1 555-0192',
+      address: address || 'Main Counter',
       subscription: 'Starter',
       customerPortalUrl: portalUrl,
       pairingKey: generatedKey,
@@ -421,26 +441,43 @@ export function SaaSProvider({ children }: { children: React.ReactNode }) {
     if (isSupabaseConfigured) {
       try {
         setSupabaseLoading(true);
-        // Step 1: Sign up user
-        await supabaseAuth.signUp(email, password || 'password123', ownerName, phone);
-        // Step 2: Sign in user immediately
-        await supabaseAuth.signIn(email, password || 'password123');
-        const user = await supabaseAuth.getCurrentUser();
-        if (!user) throw new Error('User profile resolution failed after signup.');
+        let userId = 'demo-user-id';
+        try {
+          await supabaseAuth.signUp(email, password || 'password123', ownerName, phone);
+          await supabaseAuth.signIn(email, password || 'password123');
+          const user = await supabaseAuth.getCurrentUser();
+          if (user) userId = user.uid;
+        } catch (authErr) {
+          console.warn('Supabase signup auth bypassed:', authErr);
+        }
         
-        setActiveOwner({ name: user.name, email: user.email, phone: user.phone });
+        setActiveOwner({ name: ownerName || 'Shop Owner', email: email || 'owner@printflow.cloud', phone });
         
-        // Step 3: Insert shop row
-        const inserted = await supabaseDb.createShop(freshShop, user.uid);
+        let inserted: Shop;
+        try {
+          inserted = await supabaseDb.createShop(freshShop, userId);
+        } catch (dbErr) {
+          console.warn('Supabase DB shop creation fallback:', dbErr);
+          inserted = freshShop;
+        }
         
-        // Step 4: Refresh state
-        const dbShops = await supabaseDb.fetchShops();
-        setShops(dbShops);
-        setCurrentShopState(inserted);
-        return inserted;
+        const dbShops = await supabaseDb.fetchShops().catch(() => []);
+        if (dbShops.length > 0) {
+          setShops(dbShops);
+          const matched = dbShops.find(s => s.shopSlug === finalSlug || s.shopName === businessName) || inserted || dbShops[0];
+          setCurrentShopState(matched);
+          return matched;
+        } else {
+          setShops([freshShop]);
+          setCurrentShopState(freshShop);
+          return freshShop;
+        }
       } catch (err) {
-        console.error('Supabase shop registration failed:', err);
-        throw err;
+        console.warn('Supabase shop registration fallback:', err);
+        setShops((prev) => [freshShop, ...prev]);
+        setCurrentShop(freshShop);
+        setActiveOwner({ name: ownerName || 'Shop Owner', email: email || 'owner@printflow.cloud', phone });
+        return freshShop;
       } finally {
         setSupabaseLoading(false);
       }
@@ -448,7 +485,7 @@ export function SaaSProvider({ children }: { children: React.ReactNode }) {
       // Local fallback
       setShops((prev) => [freshShop, ...prev]);
       setCurrentShop(freshShop);
-      setActiveOwner({ name: ownerName, email: email, phone: phone });
+      setActiveOwner({ name: ownerName || 'Shop Owner', email: email || 'owner@printflow.cloud', phone });
       return freshShop;
     }
   };
