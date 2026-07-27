@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { 
   Printer, ArrowRight, Play, CheckCircle, Smartphone, 
   Settings, BarChart3, Clock, Share2, Shield, MessageSquare, 
-  Mail, HelpCircle, ChevronDown, Sparkles, Building2, QrCode
+  Mail, HelpCircle, ChevronDown, Sparkles, Building2, QrCode,
+  Sun, Moon
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useSaaS } from '../../context/SaaSContext';
@@ -12,6 +13,29 @@ export const LandingPage: React.FC = () => {
   const navigate = useNavigate();
   const { login } = useSaaS();
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
+
+  const [isDark, setIsDark] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('printflow_theme');
+      if (saved) return saved === 'dark';
+      return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+    return false;
+  });
+
+  useEffect(() => {
+    if (isDark) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('printflow_theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('printflow_theme', 'light');
+    }
+  }, [isDark]);
+
+  const toggleDarkMode = () => {
+    setIsDark(prev => !prev);
+  };
 
   const toggleFaq = (idx: number) => {
     setActiveFaq(activeFaq === idx ? null : idx);
@@ -55,35 +79,52 @@ export const LandingPage: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans text-slate-800 flex flex-col selection:bg-slate-900 selection:text-white">
+    <div className={`min-h-screen font-sans flex flex-col transition-colors duration-300 selection:bg-slate-900 selection:text-white ${
+      isDark ? 'dark bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-800'
+    }`}>
       {/* SaaS Navigation */}
-      <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-100 px-6 py-4 flex items-center justify-between">
+      <nav className="sticky top-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 px-6 py-4 flex items-center justify-between transition-colors">
         <div className="flex items-center gap-2">
-          <div className="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center shadow-md shadow-slate-900/10">
+          <div className="w-10 h-10 rounded-xl bg-slate-900 dark:bg-indigo-600 text-white flex items-center justify-center shadow-md shadow-slate-900/10">
             <Printer className="w-5.5 h-5.5" />
           </div>
           <div>
-            <span className="font-black text-xl tracking-tight text-slate-900">PrintFlow</span>
-            <span className="text-xs font-semibold text-slate-400 block -mt-1 tracking-wider uppercase">Cloud</span>
+            <span className="font-black text-xl tracking-tight text-slate-900 dark:text-white">PrintFlow</span>
+            <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 block -mt-1 tracking-wider uppercase">Cloud</span>
           </div>
         </div>
         
         {/* Nav Links */}
-        <div className="hidden md:flex items-center gap-8 font-semibold text-slate-600 text-sm">
-          <Link to="/" className="hover:text-slate-900 transition-colors">Home</Link>
-          <Link to="/features" className="hover:text-slate-900 transition-colors">Features</Link>
-          <Link to="/pricing" className="hover:text-slate-900 transition-colors">Pricing</Link>
-          <Link to="/contact" className="hover:text-slate-900 transition-colors">Contact</Link>
+        <div className="hidden md:flex items-center gap-8 font-semibold text-slate-600 dark:text-slate-300 text-sm">
+          <Link to="/" className="hover:text-slate-900 dark:hover:text-white transition-colors">Home</Link>
+          <Link to="/features" className="hover:text-slate-900 dark:hover:text-white transition-colors">Features</Link>
+          <Link to="/pricing" className="hover:text-slate-900 dark:hover:text-white transition-colors">Pricing</Link>
+          <Link to="/contact" className="hover:text-slate-900 dark:hover:text-white transition-colors">Contact</Link>
         </div>
 
         {/* CTAs */}
-        <div className="flex items-center gap-3.5">
-          <Link to="/login" className="font-bold text-slate-600 hover:text-slate-900 text-sm px-4 py-2 transition-colors">
+        <div className="flex items-center gap-3">
+          {/* Dark Mode Toggle Button */}
+          <button
+            type="button"
+            onClick={toggleDarkMode}
+            aria-label="Toggle theme mode"
+            title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
+            className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-slate-100/80 dark:bg-slate-800/80 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all cursor-pointer flex items-center justify-center"
+          >
+            {isDark ? (
+              <Sun className="w-4 h-4 text-amber-400 fill-amber-400/30" />
+            ) : (
+              <Moon className="w-4 h-4 text-slate-700" />
+            )}
+          </button>
+
+          <Link to="/login" className="font-bold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white text-sm px-3.5 py-2 transition-colors">
             Login
           </Link>
           <button 
             onClick={handleStartTrial}
-            className="inline-flex items-center justify-center bg-slate-900 hover:bg-slate-800 text-white text-sm font-bold px-4.5 py-2.5 rounded-xl shadow-sm transition-all hover:scale-[1.01] cursor-pointer"
+            className="inline-flex items-center justify-center bg-slate-900 hover:bg-slate-800 dark:bg-indigo-600 dark:hover:bg-indigo-500 text-white text-sm font-bold px-4.5 py-2.5 rounded-xl shadow-sm transition-all hover:scale-[1.01] cursor-pointer"
           >
             Start Free Trial
           </button>
@@ -91,10 +132,10 @@ export const LandingPage: React.FC = () => {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative px-6 py-20 md:py-32 overflow-hidden bg-white">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-full pointer-events-none overflow-hidden opacity-30">
-          <div className="absolute top-[-10%] left-[5%] w-[40%] aspect-square rounded-full bg-gradient-to-tr from-indigo-100 to-transparent blur-[80px]" />
-          <div className="absolute top-[20%] right-[-10%] w-[50%] aspect-square rounded-full bg-gradient-to-br from-indigo-50 to-transparent blur-[100px]" />
+      <section className="relative px-6 py-20 md:py-32 overflow-hidden bg-white dark:bg-slate-950 transition-colors">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-full pointer-events-none overflow-hidden opacity-30 dark:opacity-20">
+          <div className="absolute top-[-10%] left-[5%] w-[40%] aspect-square rounded-full bg-gradient-to-tr from-indigo-100 dark:from-indigo-900 to-transparent blur-[80px]" />
+          <div className="absolute top-[20%] right-[-10%] w-[50%] aspect-square rounded-full bg-gradient-to-br from-indigo-50 dark:from-indigo-950 to-transparent blur-[100px]" />
         </div>
 
         <div className="max-w-4xl mx-auto text-center space-y-8 relative z-10">
@@ -102,9 +143,9 @@ export const LandingPage: React.FC = () => {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-50 border border-indigo-100 text-xs font-bold text-indigo-600"
+            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-950/80 border border-indigo-100 dark:border-indigo-800 text-xs font-bold text-indigo-600 dark:text-indigo-400"
           >
-            <Sparkles className="w-4 h-4 fill-indigo-100 text-indigo-600 animate-pulse" />
+            <Sparkles className="w-4 h-4 fill-indigo-100 dark:fill-indigo-900 text-indigo-600 dark:text-indigo-400 animate-pulse" />
             <span>Introducing Sprint 2 Tenant Upgrades</span>
           </motion.div>
 
@@ -112,10 +153,10 @@ export const LandingPage: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="text-4xl sm:text-6xl md:text-7xl font-black text-slate-900 tracking-tight leading-[1.05]"
+            className="text-4xl sm:text-6xl md:text-7xl font-black text-slate-900 dark:text-white tracking-tight leading-[1.05]"
           >
             Stop Taking Print Orders <br className="hidden md:inline" />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-slate-900 via-indigo-950 to-indigo-600">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-slate-900 via-indigo-950 to-indigo-600 dark:from-white dark:via-indigo-200 dark:to-indigo-400">
               on WhatsApp.
             </span>
           </motion.h1>
@@ -124,7 +165,7 @@ export const LandingPage: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="text-lg sm:text-xl text-slate-500 font-medium max-w-2xl mx-auto leading-relaxed"
+            className="text-lg sm:text-xl text-slate-500 dark:text-slate-400 font-medium max-w-2xl mx-auto leading-relaxed"
           >
             Customers scan a QR code, upload files, choose print settings and your printer is ready for automatic printing. Zero app install, zero chat friction.
           </motion.p>
@@ -137,7 +178,7 @@ export const LandingPage: React.FC = () => {
           >
             <button 
               onClick={handleStartTrial}
-              className="w-full sm:w-auto inline-flex items-center justify-center bg-slate-900 hover:bg-slate-800 text-white font-bold text-base px-8 py-4 rounded-2xl shadow-xl shadow-slate-900/10 transition-all hover:scale-[1.01] group gap-2"
+              className="w-full sm:w-auto inline-flex items-center justify-center bg-slate-900 hover:bg-slate-800 dark:bg-indigo-600 dark:hover:bg-indigo-500 text-white font-bold text-base px-8 py-4 rounded-2xl shadow-xl shadow-slate-900/10 dark:shadow-indigo-950/50 transition-all hover:scale-[1.01] group gap-2"
             >
               <span>Start Free Trial</span>
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -146,9 +187,9 @@ export const LandingPage: React.FC = () => {
               href="https://ai.studio/build" 
               target="_blank" 
               rel="noreferrer"
-              className="w-full sm:w-auto inline-flex items-center justify-center bg-slate-50 hover:bg-slate-100 text-slate-800 font-bold text-base px-8 py-4 rounded-2xl border border-slate-200 transition-all gap-2"
+              className="w-full sm:w-auto inline-flex items-center justify-center bg-slate-50 dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 font-bold text-base px-8 py-4 rounded-2xl border border-slate-200 dark:border-slate-800 transition-all gap-2"
             >
-              <Play className="w-4 h-4 fill-slate-800" />
+              <Play className="w-4 h-4 fill-slate-800 dark:fill-slate-200" />
               <span>Watch Demo Video</span>
             </a>
           </motion.div>
@@ -156,26 +197,26 @@ export const LandingPage: React.FC = () => {
       </section>
 
       {/* How It Works Section */}
-      <section className="px-6 py-20 md:py-28 bg-slate-50 border-y border-slate-100">
+      <section className="px-6 py-20 md:py-28 bg-slate-50 dark:bg-slate-900/50 border-y border-slate-100 dark:border-slate-800/80 transition-colors">
         <div className="max-w-6xl mx-auto space-y-16">
           <div className="text-center space-y-4 max-w-2xl mx-auto">
-            <h2 className="text-xs uppercase tracking-widest font-black text-indigo-600">The Workflow</h2>
-            <h3 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">Frictionless from click to sheet.</h3>
-            <p className="text-slate-500 font-medium text-lg">See how PrintFlow simplifies the printing operations for both owners and walk-in customers.</p>
+            <h2 className="text-xs uppercase tracking-widest font-black text-indigo-600 dark:text-indigo-400">The Workflow</h2>
+            <h3 className="text-3xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight">Frictionless from click to sheet.</h3>
+            <p className="text-slate-500 dark:text-slate-400 font-medium text-lg">See how PrintFlow simplifies the printing operations for both owners and walk-in customers.</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {steps.map((step, idx) => (
-              <div key={idx} className="bg-white border border-slate-100 p-6 rounded-[28px] shadow-sm relative overflow-hidden flex flex-col justify-between min-h-[220px]">
-                <div className="absolute top-2 right-4 text-8xl font-black text-slate-50 select-none pointer-events-none">
+              <div key={idx} className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-6 rounded-[28px] shadow-sm relative overflow-hidden flex flex-col justify-between min-h-[220px]">
+                <div className="absolute top-2 right-4 text-8xl font-black text-slate-50 dark:text-slate-800/40 select-none pointer-events-none">
                   {idx + 1}
                 </div>
                 <div className="relative z-10 space-y-2.5">
-                  <div className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-slate-900 text-white text-xs font-black">
+                  <div className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-slate-900 dark:bg-indigo-600 text-white text-xs font-black">
                     0{idx + 1}
                   </div>
-                  <h4 className="font-extrabold text-slate-900 text-lg leading-tight">{step.title}</h4>
-                  <p className="text-slate-400 text-sm font-semibold leading-normal">{step.desc}</p>
+                  <h4 className="font-extrabold text-slate-900 dark:text-white text-lg leading-tight">{step.title}</h4>
+                  <p className="text-slate-400 dark:text-slate-400 text-sm font-semibold leading-normal">{step.desc}</p>
                 </div>
               </div>
             ))}
@@ -184,23 +225,23 @@ export const LandingPage: React.FC = () => {
       </section>
 
       {/* Features Section */}
-      <section className="px-6 py-20 md:py-28 bg-white">
+      <section className="px-6 py-20 md:py-28 bg-white dark:bg-slate-950 transition-colors">
         <div className="max-w-6xl mx-auto space-y-16">
           <div className="text-center space-y-4 max-w-2xl mx-auto">
-            <h2 className="text-xs uppercase tracking-widest font-black text-indigo-600">Full Capabilities</h2>
-            <h3 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">Purpose-built for local print businesses.</h3>
-            <p className="text-slate-500 font-medium text-lg">Every feature you need to run, track, and scale your automated counter. No tech overhead.</p>
+            <h2 className="text-xs uppercase tracking-widest font-black text-indigo-600 dark:text-indigo-400">Full Capabilities</h2>
+            <h3 className="text-3xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight">Purpose-built for local print businesses.</h3>
+            <p className="text-slate-500 dark:text-slate-400 font-medium text-lg">Every feature you need to run, track, and scale your automated counter. No tech overhead.</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {features.map((feat, idx) => (
-              <div key={idx} className="flex gap-4 p-6 bg-slate-50/55 rounded-3xl border border-slate-100/50 hover:bg-slate-50 transition-colors">
-                <div className="p-3 bg-white rounded-2xl shadow-sm shrink-0 h-12 w-12 flex items-center justify-center">
+              <div key={idx} className="flex gap-4 p-6 bg-slate-50/55 dark:bg-slate-900/60 rounded-3xl border border-slate-100/50 dark:border-slate-800/80 hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors">
+                <div className="p-3 bg-white dark:bg-slate-800 rounded-2xl shadow-sm shrink-0 h-12 w-12 flex items-center justify-center">
                   {feat.icon}
                 </div>
                 <div className="space-y-1.5">
-                  <h4 className="font-extrabold text-slate-900 text-base">{feat.title}</h4>
-                  <p className="text-slate-500 font-medium text-xs leading-normal">{feat.desc}</p>
+                  <h4 className="font-extrabold text-slate-900 dark:text-white text-base">{feat.title}</h4>
+                  <p className="text-slate-500 dark:text-slate-400 font-medium text-xs leading-normal">{feat.desc}</p>
                 </div>
               </div>
             ))}
@@ -209,7 +250,7 @@ export const LandingPage: React.FC = () => {
       </section>
 
       {/* Pricing Section */}
-      <section className="px-6 py-20 md:py-28 bg-slate-900 text-white rounded-[40px] md:rounded-[56px] mx-0 md:mx-6 my-8 overflow-hidden relative">
+      <section className="px-6 py-20 md:py-28 bg-slate-900 dark:bg-slate-900/90 text-white rounded-[40px] md:rounded-[56px] mx-0 md:mx-6 my-8 overflow-hidden relative">
         <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
           <div className="absolute top-[10%] left-[20%] w-[30%] aspect-square bg-white rounded-full blur-[100px]" />
           <div className="absolute bottom-[20%] right-[10%] w-[40%] aspect-square bg-indigo-500 rounded-full blur-[120px]" />
@@ -268,7 +309,7 @@ export const LandingPage: React.FC = () => {
               <div className="pt-8">
                 <button 
                   onClick={handleStartTrial}
-                  className="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-extrabold text-sm py-4 rounded-xl transition-all shadow-md shadow-indigo-500/10"
+                  className="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-extrabold text-sm py-4 rounded-xl transition-all shadow-md shadow-indigo-500/10 cursor-pointer"
                 >
                   Start 14-Day Trial
                 </button>
@@ -365,11 +406,11 @@ export const LandingPage: React.FC = () => {
       </section>
 
       {/* FAQ Section */}
-      <section className="px-6 py-20 md:py-28 bg-white">
+      <section className="px-6 py-20 md:py-28 bg-white dark:bg-slate-950 transition-colors">
         <div className="max-w-4xl mx-auto space-y-16">
           <div className="text-center space-y-4 max-w-2xl mx-auto">
-            <h2 className="text-xs uppercase tracking-widest font-black text-indigo-600">Questions & Answers</h2>
-            <h3 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">Got Questions? We got answers.</h3>
+            <h2 className="text-xs uppercase tracking-widest font-black text-indigo-600 dark:text-indigo-400">Questions & Answers</h2>
+            <h3 className="text-3xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight">Got Questions? We got answers.</h3>
           </div>
 
           <div className="space-y-4">
@@ -379,24 +420,26 @@ export const LandingPage: React.FC = () => {
                 <div 
                   key={idx} 
                   className={`border rounded-[24px] overflow-hidden transition-all duration-300 ${
-                    isOpen ? 'border-slate-300 bg-slate-50' : 'border-slate-100 hover:border-slate-200 bg-white'
+                    isOpen 
+                      ? 'border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900' 
+                      : 'border-slate-100 dark:border-slate-800/80 hover:border-slate-200 dark:hover:border-slate-700 bg-white dark:bg-slate-950'
                   }`}
                 >
                   <button
                     type="button"
                     onClick={() => toggleFaq(idx)}
-                    className="w-full px-6 py-5.5 flex items-center justify-between text-left outline-none font-bold text-slate-900 text-lg"
+                    className="w-full px-6 py-5.5 flex items-center justify-between text-left outline-none font-bold text-slate-900 dark:text-white text-lg cursor-pointer"
                   >
                     <span>{faq.q}</span>
-                    <ChevronDown className={`w-5 h-5 text-slate-400 transition-transform duration-300 ${isOpen ? 'rotate-180 text-slate-900' : ''}`} />
+                    <ChevronDown className={`w-5 h-5 text-slate-400 transition-transform duration-300 ${isOpen ? 'rotate-180 text-slate-900 dark:text-white' : ''}`} />
                   </button>
                   
                   <div 
                     className={`transition-all duration-300 ease-in-out ${
-                      isOpen ? 'max-h-[300px] opacity-100 border-t border-slate-200/50' : 'max-h-0 opacity-0 pointer-events-none'
+                      isOpen ? 'max-h-[300px] opacity-100 border-t border-slate-200/50 dark:border-slate-800' : 'max-h-0 opacity-0 pointer-events-none'
                     }`}
                   >
-                    <p className="px-6 py-5.5 text-slate-500 font-medium text-sm leading-relaxed">
+                    <p className="px-6 py-5.5 text-slate-500 dark:text-slate-400 font-medium text-sm leading-relaxed">
                       {faq.a}
                     </p>
                   </div>
@@ -408,7 +451,7 @@ export const LandingPage: React.FC = () => {
       </section>
 
       {/* Footer */}
-      <footer className="bg-slate-900 text-slate-400 px-6 py-16 border-t border-slate-800">
+      <footer className="bg-slate-900 dark:bg-slate-950 text-slate-400 px-6 py-16 border-t border-slate-800">
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-10">
           <div className="space-y-4 md:col-span-1">
             <div className="flex items-center gap-2">
