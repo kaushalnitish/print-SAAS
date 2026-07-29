@@ -212,19 +212,17 @@ export const DashboardShops: React.FC = () => {
                         <span>Customer Portal URL</span>
                       </p>
                       <p className="text-indigo-600 text-xs font-bold truncate max-w-[320px]">
-                        {window.location.origin}/#/s/{shop.slug}
+                        {window.location.origin}{window.location.pathname}#/s/{shop.slug}
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
-                      <a
-                        href={`#/s/${shop.slug}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="p-1.5 hover:bg-slate-200 rounded-lg text-slate-400 hover:text-indigo-600 transition-colors"
-                        title="Open Portal"
+                      <button
+                        type="button"
+                        onClick={() => handleCopyText(`${window.location.origin}${window.location.pathname}#/s/${shop.slug}`, 'id')}
+                        className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-extrabold transition-colors cursor-pointer"
                       >
-                        <ExternalLink className="w-4 h-4" />
-                      </a>
+                        Copy Link
+                      </button>
                     </div>
                   </div>
                 </div>

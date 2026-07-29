@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useSaaS } from '../../context/SaaSContext';
+import { SaaSNavbar } from '../../components/SaaSNavbar';
 
 export const LandingPage: React.FC = () => {
   const navigate = useNavigate();
@@ -83,53 +84,7 @@ export const LandingPage: React.FC = () => {
       isDark ? 'dark bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-800'
     }`}>
       {/* SaaS Navigation */}
-      <nav className="sticky top-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 px-6 py-4 flex items-center justify-between transition-colors">
-        <div className="flex items-center gap-2">
-          <div className="w-10 h-10 rounded-xl bg-slate-900 dark:bg-indigo-600 text-white flex items-center justify-center shadow-md shadow-slate-900/10">
-            <Printer className="w-5.5 h-5.5" />
-          </div>
-          <div>
-            <span className="font-black text-xl tracking-tight text-slate-900 dark:text-white">PrintFlow</span>
-            <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 block -mt-1 tracking-wider uppercase">Cloud</span>
-          </div>
-        </div>
-        
-        {/* Nav Links */}
-        <div className="hidden md:flex items-center gap-8 font-semibold text-slate-600 dark:text-slate-300 text-sm">
-          <Link to="/" className="hover:text-slate-900 dark:hover:text-white transition-colors">Home</Link>
-          <Link to="/features" className="hover:text-slate-900 dark:hover:text-white transition-colors">Features</Link>
-          <Link to="/pricing" className="hover:text-slate-900 dark:hover:text-white transition-colors">Pricing</Link>
-          <Link to="/contact" className="hover:text-slate-900 dark:hover:text-white transition-colors">Contact</Link>
-        </div>
-
-        {/* CTAs */}
-        <div className="flex items-center gap-3">
-          {/* Dark Mode Toggle Button */}
-          <button
-            type="button"
-            onClick={toggleDarkMode}
-            aria-label="Toggle theme mode"
-            title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
-            className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-slate-100/80 dark:bg-slate-800/80 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all cursor-pointer flex items-center justify-center"
-          >
-            {isDark ? (
-              <Sun className="w-4 h-4 text-amber-400 fill-amber-400/30" />
-            ) : (
-              <Moon className="w-4 h-4 text-slate-700" />
-            )}
-          </button>
-
-          <Link to="/login" className="font-bold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white text-sm px-3.5 py-2 transition-colors">
-            Login
-          </Link>
-          <button 
-            onClick={handleStartTrial}
-            className="inline-flex items-center justify-center bg-slate-900 hover:bg-slate-800 dark:bg-indigo-600 dark:hover:bg-indigo-500 text-white text-sm font-bold px-4.5 py-2.5 rounded-xl shadow-sm transition-all hover:scale-[1.01] cursor-pointer"
-          >
-            Start Free Trial
-          </button>
-        </div>
-      </nav>
+      <SaaSNavbar currentPage="home" isDark={isDark} toggleTheme={toggleDarkMode} />
 
       {/* Hero Section */}
       <section className="relative px-6 py-20 md:py-32 overflow-hidden bg-white dark:bg-slate-950 transition-colors">
@@ -177,21 +132,18 @@ export const LandingPage: React.FC = () => {
             className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4"
           >
             <button 
-              onClick={handleStartTrial}
-              className="w-full sm:w-auto inline-flex items-center justify-center bg-slate-900 hover:bg-slate-800 dark:bg-indigo-600 dark:hover:bg-indigo-500 text-white font-bold text-base px-8 py-4 rounded-2xl shadow-xl shadow-slate-900/10 dark:shadow-indigo-950/50 transition-all hover:scale-[1.01] group gap-2"
+              onClick={() => navigate('/register')}
+              className="w-full sm:w-auto inline-flex items-center justify-center bg-slate-900 hover:bg-slate-800 dark:bg-indigo-600 dark:hover:bg-indigo-500 text-white font-black text-base px-8 py-4 rounded-2xl shadow-xl shadow-slate-900/10 dark:shadow-indigo-950/50 transition-all hover:scale-[1.01] group gap-2 cursor-pointer"
             >
-              <span>Start Free Trial</span>
+              <span>Create New Account</span>
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </button>
-            <a 
-              href="https://ai.studio/build" 
-              target="_blank" 
-              rel="noreferrer"
-              className="w-full sm:w-auto inline-flex items-center justify-center bg-slate-50 dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 font-bold text-base px-8 py-4 rounded-2xl border border-slate-200 dark:border-slate-800 transition-all gap-2"
+            <button
+              onClick={() => navigate('/login')}
+              className="w-full sm:w-auto inline-flex items-center justify-center bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 font-bold text-base px-8 py-4 rounded-2xl border border-slate-200 dark:border-slate-800 transition-all gap-2 cursor-pointer"
             >
-              <Play className="w-4 h-4 fill-slate-800 dark:fill-slate-200" />
-              <span>Watch Demo Video</span>
-            </a>
+              <span>Sign In</span>
+            </button>
           </motion.div>
         </div>
       </section>

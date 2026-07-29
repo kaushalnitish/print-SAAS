@@ -23,6 +23,8 @@ import {
 export const DashboardAdminConsole: React.FC = () => {
   const { shops, currentShop, selectShop, updateShopSettings, updateJobStatus } = useSaaS();
 
+  const isAdmin = localStorage.getItem('printflow_admin_auth') === 'true';
+
   // Active view state
   const [selectedShopId, setSelectedShopId] = useState<string | null>(null);
   const [shopWorkspaceTab, setShopWorkspaceTab] = useState<
@@ -53,6 +55,36 @@ export const DashboardAdminConsole: React.FC = () => {
       setLogs(adminConsoleService.getInitialLogs(shops));
     }
   }, [shops]);
+
+  if (!isAdmin) {
+    return (
+      <div className="p-8 md:p-12 bg-white border border-rose-200/80 rounded-[32px] max-w-xl mx-auto my-12 text-center space-y-5 shadow-xl shadow-slate-900/5">
+        <div className="w-14 h-14 rounded-2xl bg-rose-50 text-rose-600 border border-rose-100 flex items-center justify-center mx-auto shadow-sm">
+          <Shield className="w-7 h-7" />
+        </div>
+        <div className="space-y-2">
+          <h2 className="text-2xl font-black text-slate-900 tracking-tight">Unauthorized Access</h2>
+          <p className="text-xs text-slate-500 font-medium leading-relaxed">
+            You do not have platform administrator privileges to access the Admin Console. The public website and owner dashboard do not expose admin tools to shop merchants.
+          </p>
+        </div>
+        <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+          <a
+            href="#/dashboard"
+            className="w-full sm:w-auto px-6 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-extrabold transition-all shadow-md cursor-pointer"
+          >
+            Return to Owner Dashboard
+          </a>
+          <a
+            href="#/admin"
+            className="w-full sm:w-auto px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-extrabold transition-all cursor-pointer border border-slate-200"
+          >
+            Admin Sign In
+          </a>
+        </div>
+      </div>
+    );
+  }
 
   const showToast = (msg: string) => {
     setToastNotice(msg);

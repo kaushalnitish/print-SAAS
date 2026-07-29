@@ -224,7 +224,6 @@ export const TrackingScreen: React.FC = () => {
           textColor: 'text-emerald-950',
         };
       case 'cancelled':
-      case 'cancelled' as any:
         return {
           title: 'Order Cancelled',
           desc: 'This print job was cancelled or declined by the shop operator. Please contact the front counter if you believe this was an error.',

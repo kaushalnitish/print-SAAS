@@ -1,6 +1,6 @@
 import React from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, RotateCcw, Printer, HelpCircle } from 'lucide-react';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { ArrowLeft, RotateCcw, Printer, HelpCircle, Home } from 'lucide-react';
 import { usePrintFlow } from '../context/PrintFlowContext';
 import { motion } from 'motion/react';
 
@@ -56,9 +56,9 @@ export const Header: React.FC = () => {
             <ArrowLeft className="w-5 h-5" />
           </motion.button>
         ) : (
-          <div className="w-10 h-10 flex items-center justify-center rounded-2xl bg-slate-900 text-white shadow-sm">
+          <Link to="/" title="Go to PrintFlow Cloud Home" className="w-10 h-10 flex items-center justify-center rounded-2xl bg-slate-900 text-white shadow-sm hover:scale-105 transition-transform">
             <Printer className="w-5 h-5" />
-          </div>
+          </Link>
         )}
       </div>
 

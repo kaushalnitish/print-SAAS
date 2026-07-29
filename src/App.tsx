@@ -22,6 +22,7 @@ import { PricingPage } from './screens/saas/PricingPage';
 import { ContactPage } from './screens/saas/ContactPage';
 import { LoginPage } from './screens/saas/LoginPage';
 import { RegisterPage } from './screens/saas/RegisterPage';
+import { AdminLoginPage } from './screens/saas/AdminLoginPage';
 import { DashboardShell } from './screens/saas/DashboardShell';
 import { DashboardOverview } from './screens/saas/DashboardOverview';
 import { DashboardQueue } from './screens/saas/DashboardQueue';
@@ -222,6 +223,7 @@ export default function App() {
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
+            <Route path="/admin" element={<AdminLoginPage />} />
 
             {/* 2. Protected Owner Console Dashboard Routes */}
             <Route path="/dashboard" element={<DashboardShell />}>
@@ -231,7 +233,7 @@ export default function App() {
               <Route path="settings" element={<DashboardSettings />} />
               <Route path="subscription" element={<DashboardSubscription />} />
               <Route path="agent" element={<DashboardAgent />} />
-              <Route path="developer" element={<DashboardDeveloper />} />
+              <Route path="developer" element={<Navigate to="/dashboard/admin" replace />} />
               <Route path="admin" element={<DashboardAdminConsole />} />
               <Route path="admin-console" element={<DashboardAdminConsole />} />
             </Route>

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Printer, Shield, ArrowRight, User, Building2, Mail, Phone, Lock, MapPin, Percent, Zap } from 'lucide-react';
 import { useSaaS } from '../../context/SaaSContext';
+import { SaaSNavbar } from '../../components/SaaSNavbar';
 
 export const RegisterPage: React.FC = () => {
   const navigate = useNavigate();
@@ -67,22 +68,24 @@ export const RegisterPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center py-12 px-6 font-sans">
-      <div className="w-full max-w-2xl bg-white p-8 md:p-12 rounded-[36px] border border-slate-100 shadow-xl shadow-slate-900/5 space-y-6 relative overflow-hidden">
-        {/* Visual background gradient accents */}
-        <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50 rounded-full blur-[40px] pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-32 h-32 bg-slate-100/60 rounded-full blur-[45px] pointer-events-none" />
+    <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
+      <SaaSNavbar currentPage="register" />
+      <div className="flex-1 flex items-center justify-center py-12 px-6">
+        <div className="w-full max-w-2xl bg-white p-8 md:p-12 rounded-[36px] border border-slate-100 shadow-xl shadow-slate-900/5 space-y-6 relative overflow-hidden">
+          {/* Visual background gradient accents */}
+          <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50 rounded-full blur-[40px] pointer-events-none" />
+          <div className="absolute bottom-0 left-0 w-32 h-32 bg-slate-100/60 rounded-full blur-[45px] pointer-events-none" />
 
-        <div className="relative z-10 text-center space-y-3">
-          <Link to="/" className="inline-flex items-center gap-2 mx-auto focus:outline-none">
-            <div className="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center shadow-md">
-              <Printer className="w-5.5 h-5.5" />
-            </div>
-            <div>
-              <span className="font-black text-xl tracking-tight text-slate-900 block text-left leading-none">PrintFlow</span>
-              <span className="text-xs font-bold text-slate-400 block tracking-wider uppercase text-left mt-0.5">Cloud</span>
-            </div>
-          </Link>
+          <div className="relative z-10 text-center space-y-3">
+            <Link to="/" className="inline-flex items-center gap-2 mx-auto focus:outline-none cursor-pointer group" title="Go to Home">
+              <div className="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center shadow-md group-hover:scale-105 transition-transform">
+                <Printer className="w-5.5 h-5.5" />
+              </div>
+              <div>
+                <span className="font-black text-xl tracking-tight text-slate-900 block text-left leading-none">PrintFlow</span>
+                <span className="text-xs font-bold text-slate-400 block tracking-wider uppercase text-left mt-0.5">Cloud</span>
+              </div>
+            </Link>
           <div className="space-y-1">
             <h1 className="text-2xl font-black text-slate-900 tracking-tight">Create Your Print Shop</h1>
             <p className="text-slate-500 font-medium text-sm">Launch your commercial print queue counter instantly.</p>
@@ -294,5 +297,6 @@ export const RegisterPage: React.FC = () => {
         </div>
       </div>
     </div>
-  );
+  </div>
+);
 };

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link, Outlet } from 'react-router-dom';
 import { 
   Printer, LayoutDashboard, ListOrdered, Building2, 
-  Settings, CreditCard, LogOut, Menu, X, ChevronDown, User, QrCode, Cpu, Code2, Shield
+  Settings, CreditCard, LogOut, Menu, X, ChevronDown, User, QrCode, Cpu, Code2, Shield, Home
 } from 'lucide-react';
 import { useSaaS } from '../../context/SaaSContext';
 
@@ -24,18 +24,21 @@ export const DashboardShell: React.FC = () => {
   if (!currentOwner) return null;
 
   const handleLogout = () => {
+    localStorage.removeItem('printflow_admin_auth');
+    localStorage.removeItem('printflow_user_role');
     logout();
     navigate('/');
   };
 
+  const isAdmin = localStorage.getItem('printflow_admin_auth') === 'true';
+
   const navItems = [
-    { label: 'Admin Console', path: '/dashboard/admin', icon: <Shield className="w-5 h-5 text-indigo-400" /> },
-    { label: 'Overview', path: '/dashboard', icon: <LayoutDashboard className="w-5 h-5" /> },
-    { label: 'Print Queue', path: '/dashboard/queue', icon: <ListOrdered className="w-5 h-5" /> },
-    { label: 'Shops Manager', path: '/dashboard/shops', icon: <Building2 className="w-5 h-5" /> },
-    { label: 'Desktop Agent', path: '/dashboard/agent', icon: <Cpu className="w-5 h-5" /> },
-    { label: 'Developer Mode', path: '/dashboard/developer', icon: <Code2 className="w-5 h-5" /> },
-    { label: 'Billing / Subscription', path: '/dashboard/subscription', icon: <CreditCard className="w-5 h-5" /> },
+    { label: 'Home Page', path: '/', icon: <Home className="w-5 h-5 text-indigo-400" /> },
+    ...(isAdmin ? [{ label: 'Admin Console', path: '/dashboard/admin', icon: <Shield className="w-5 h-5 text-indigo-400" /> }] : []),
+    { label: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard className="w-5 h-5" /> },
+    { label: 'Print Queue & Jobs', path: '/dashboard/queue', icon: <ListOrdered className="w-5 h-5" /> },
+    { label: 'Customers & Outlet', path: '/dashboard/shops', icon: <Building2 className="w-5 h-5" /> },
+    { label: 'Subscription', path: '/dashboard/subscription', icon: <CreditCard className="w-5 h-5" /> },
     { label: 'Shop Settings', path: '/dashboard/settings', icon: <Settings className="w-5 h-5" /> },
   ];
 
@@ -44,15 +47,19 @@ export const DashboardShell: React.FC = () => {
       {/* Sidebar - Desktop */}
       <aside className="hidden lg:flex flex-col w-64 bg-slate-900 text-white shrink-0 border-r border-slate-800">
         {/* Brand Header */}
-        <div className="p-6 border-b border-slate-800 flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-lg bg-indigo-500 text-white flex items-center justify-center shadow-md">
+        <Link 
+          to="/" 
+          className="p-6 border-b border-slate-800 flex items-center gap-2.5 group cursor-pointer hover:bg-slate-800/50 transition-colors"
+          title="Return to Home Page"
+        >
+          <div className="w-9 h-9 rounded-lg bg-indigo-500 text-white flex items-center justify-center shadow-md group-hover:scale-105 transition-transform">
             <Printer className="w-5.5 h-5.5" />
           </div>
           <div>
             <span className="font-extrabold text-white text-base tracking-tight block">PrintFlow</span>
             <span className="text-[10px] font-bold text-slate-400 block -mt-1 tracking-widest uppercase">Console</span>
           </div>
-        </div>
+        </Link>
 
         {/* Selected Shop Context Info */}
         {currentShop && (
@@ -144,12 +151,12 @@ export const DashboardShell: React.FC = () => {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="p-5 border-b border-slate-800 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-indigo-500 text-white flex items-center justify-center">
+              <Link to="/" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2 group cursor-pointer" title="Go to Home Page">
+                <div className="w-8 h-8 rounded-lg bg-indigo-500 text-white flex items-center justify-center group-hover:scale-105 transition-transform">
                   <Printer className="w-5 h-5" />
                 </div>
                 <span className="font-extrabold text-base text-white tracking-tight">PrintFlow</span>
-              </div>
+              </Link>
               <button onClick={() => setMobileMenuOpen(false)} className="p-1.5 hover:bg-slate-800 rounded-lg">
                 <X className="w-5 h-5 text-slate-400" />
               </button>
@@ -236,36 +243,43 @@ export const DashboardShell: React.FC = () => {
               <Menu className="w-5.5 h-5.5" />
             </button>
             
-            <div className="hidden lg:flex items-center gap-2 text-slate-400 text-xs font-semibold">
+            {/* Clickable Brand Logo in Dashboard Header */}
+            <Link 
+              to="/" 
+              className="flex items-center gap-2 group cursor-pointer hover:opacity-90 transition-opacity" 
+              title="Return to PrintFlow Cloud Homepage"
+              aria-label="PrintFlow Cloud Homepage"
+            >
+              <div className="w-8 h-8 rounded-lg bg-slate-900 text-white flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
+                <Printer className="w-4.5 h-4.5" />
+              </div>
+              <div>
+                <span className="font-black text-sm tracking-tight text-slate-900 block leading-none">PrintFlow</span>
+                <span className="text-[9px] font-bold text-slate-400 block tracking-widest uppercase">Cloud</span>
+              </div>
+            </Link>
+
+            <div className="hidden lg:flex items-center gap-2 text-slate-400 text-xs font-semibold ml-2 pl-3 border-l border-slate-200">
               <span className="capitalize">Console</span>
               <span>/</span>
               <span className="text-slate-800 font-bold">
                 {navItems.find((n) => n.path === location.pathname)?.label || 'Dashboard'}
               </span>
             </div>
-            
-            {/* Mobile branding fallback */}
-            <div className="flex lg:hidden items-center gap-1.5">
-              <Printer className="w-5 h-5 text-indigo-600" />
-              <span className="font-extrabold text-slate-900 tracking-tight text-sm">PrintFlow</span>
-            </div>
           </div>
 
-          <div className="flex items-center gap-4">
-            {/* View Customer Portal Link button */}
-            {currentShop && (
-              <a
-                href={`#/s/${currentShop.slug}`}
-                target="_blank"
-                rel="noreferrer"
-                className="hidden sm:inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-indigo-50 border border-indigo-100 text-xs font-bold text-indigo-600 hover:bg-indigo-100 transition-colors"
-              >
-                <QrCode className="w-3.5 h-3.5" />
-                <span>Open Customer Portal</span>
-              </a>
-            )}
+          <div className="flex items-center gap-3">
+            {/* Dedicated Global Home Navigation Button */}
+            <Link
+              to="/"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold text-xs transition-all cursor-pointer border border-slate-200/80 shadow-xs"
+              title="Return to Home Page"
+            >
+              <Home className="w-4 h-4 text-indigo-600" />
+              <span>Home</span>
+            </Link>
 
-            <div className="flex items-center gap-2">
+            <div className="hidden md:flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
               <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">System Live</span>
             </div>

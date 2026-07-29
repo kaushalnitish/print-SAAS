@@ -4,6 +4,7 @@ import {
   Printer, CheckCircle, Smartphone, Settings, BarChart3, 
   Clock, Sparkles, Building2, QrCode, MessageSquare, Mail, HelpCircle, ArrowRight
 } from 'lucide-react';
+import { SaaSNavbar } from '../../components/SaaSNavbar';
 
 export const FeaturesPage: React.FC = () => {
   const details = [
@@ -32,36 +33,7 @@ export const FeaturesPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-800 flex flex-col">
       {/* SaaS Navigation */}
-      <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-100 px-6 py-4 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2">
-          <div className="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center shadow-md">
-            <Printer className="w-5.5 h-5.5" />
-          </div>
-          <div>
-            <span className="font-black text-xl tracking-tight text-slate-900">PrintFlow</span>
-            <span className="text-xs font-semibold text-slate-400 block -mt-1 tracking-wider uppercase">Cloud</span>
-          </div>
-        </Link>
-        
-        <div className="hidden md:flex items-center gap-8 font-semibold text-slate-600 text-sm">
-          <Link to="/" className="hover:text-slate-900 transition-colors">Home</Link>
-          <Link to="/features" className="text-indigo-600 hover:text-indigo-700 transition-colors">Features</Link>
-          <Link to="/pricing" className="hover:text-slate-900 transition-colors">Pricing</Link>
-          <Link to="/contact" className="hover:text-slate-900 transition-colors">Contact</Link>
-        </div>
-
-        <div className="flex items-center gap-3.5">
-          <Link to="/login" className="font-bold text-slate-600 hover:text-slate-900 text-sm px-4 py-2">
-            Login
-          </Link>
-          <Link 
-            to="/register" 
-            className="inline-flex items-center justify-center bg-slate-900 hover:bg-slate-800 text-white text-sm font-bold px-4.5 py-2.5 rounded-xl transition-all shadow-sm"
-          >
-            Start Free Trial
-          </Link>
-        </div>
-      </nav>
+      <SaaSNavbar currentPage="features" />
 
       {/* Main Feature Content */}
       <main className="flex-1 py-16 px-6 max-w-5xl mx-auto space-y-16">
