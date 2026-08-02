@@ -122,11 +122,19 @@ export const LoginPage: React.FC = () => {
             </button>
           </form>
 
-          <div className="text-center text-xs font-semibold text-slate-400 relative z-10 pt-4 border-t border-slate-100">
-            <span>Don't have a shop registered yet? </span>
-            <Link to="/register" className="text-indigo-600 hover:text-indigo-700 font-bold">
-              Register Your Shop
-            </Link>
+          <div className="text-center text-xs font-semibold text-slate-400 relative z-10 pt-4 border-t border-slate-100 flex flex-col gap-2">
+            <div>
+              <span>Don't have a shop registered yet? </span>
+              <Link to="/register" className="text-indigo-600 hover:text-indigo-700 font-bold">
+                Register Your Shop
+              </Link>
+            </div>
+            <div className="pt-1 text-[11px]">
+              <span>Are you a platform developer? </span>
+              <Link to="/developer-login" className="text-slate-700 hover:text-indigo-600 font-extrabold underline">
+                Developer Sign In
+              </Link>
+            </div>
           </div>
         </div>
       </div>

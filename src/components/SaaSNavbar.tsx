@@ -1,9 +1,9 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Printer, Home, Shield, Store, Sun, Moon } from 'lucide-react';
+import { Printer, Home, Shield, Store, Sun, Moon, Code2 } from 'lucide-react';
 
 interface SaaSNavbarProps {
-  currentPage?: 'home' | 'features' | 'pricing' | 'contact' | 'login' | 'register';
+  currentPage?: 'home' | 'features' | 'pricing' | 'contact' | 'login' | 'register' | 'developer-login';
   isDark?: boolean;
   toggleTheme?: () => void;
 }
@@ -98,16 +98,25 @@ export const SaaSNavbar: React.FC<SaaSNavbarProps> = ({ currentPage, isDark, tog
 
         <button
           onClick={() => navigate('/login')}
-          className="inline-flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-extrabold px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 transition-all cursor-pointer"
+          className="inline-flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-extrabold px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 transition-all cursor-pointer"
         >
           <span>Sign In</span>
         </button>
 
         <button
           onClick={() => navigate('/register')}
-          className="inline-flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 dark:bg-indigo-600 dark:hover:bg-indigo-500 text-white text-xs font-extrabold px-4 py-2.5 rounded-xl shadow-sm transition-all hover:scale-[1.01] cursor-pointer"
+          className="inline-flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 dark:bg-indigo-600 dark:hover:bg-indigo-500 text-white text-xs font-extrabold px-3.5 py-2.5 rounded-xl shadow-sm transition-all hover:scale-[1.01] cursor-pointer"
         >
           <span>Create New Account</span>
+        </button>
+
+        <button
+          onClick={() => navigate('/developer-login')}
+          className="hidden sm:inline-flex items-center gap-1.5 bg-indigo-950 hover:bg-indigo-900 text-indigo-300 dark:text-indigo-200 text-xs font-black px-3.5 py-2.5 rounded-xl border border-indigo-800/80 transition-all cursor-pointer"
+          title="Developer Console Sign In"
+        >
+          <Code2 className="w-3.5 h-3.5 text-indigo-400" />
+          <span>Developer Sign In</span>
         </button>
       </div>
     </nav>

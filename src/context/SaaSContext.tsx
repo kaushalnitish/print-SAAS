@@ -193,24 +193,28 @@ export function SaaSProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   // ---------------------------------------------------------------------
-  // 1b. SUPABASE REALTIME SUBSCRIPTION FOR PRINT JOBS
+  // 1b. TENANT-ISOLATED SUPABASE REALTIME SUBSCRIPTION FOR PRINT JOBS
   // ---------------------------------------------------------------------
   useEffect(() => {
-    if (!isSupabaseConfigured || !supabase) return;
+    if (!isSupabaseConfigured || !supabase || !currentShop) return;
 
-    console.log('Setting up Supabase Realtime subscription for print_jobs changes...');
+    const activeShopUuid = currentShop.id || currentShop.shopId;
+    if (!activeShopUuid) return;
+
+    console.log(`[Realtime] Subscribing to tenant-isolated print_jobs channel for shop UUID: ${activeShopUuid}`);
 
     const channel = supabase
-      .channel('public-print-jobs-changes')
+      .channel(`tenant-print-jobs-${activeShopUuid}`)
       .on(
         'postgres_changes',
         {
           event: '*',
           schema: 'public',
           table: 'print_jobs',
+          filter: `shop_id=eq.${activeShopUuid}`,
         },
         async (payload) => {
-          console.log('Realtime print_jobs update received:', payload);
+          console.log(`[Tenant Realtime ${activeShopUuid}] Isolated print_jobs update received:`, payload);
           try {
             const dbShops = await supabaseDb.fetchShops();
             setShops(dbShops);
@@ -224,19 +228,19 @@ export function SaaSProvider({ children }: { children: React.ReactNode }) {
               return null;
             });
           } catch (err) {
-            console.error('Error auto-syncing database changes via Realtime:', err);
+            console.error('Error auto-syncing tenant database changes via Realtime:', err);
           }
         }
       )
       .subscribe((status) => {
-        console.log(`Supabase Realtime subscription status: ${status}`);
+        console.log(`[Tenant Realtime ${activeShopUuid}] Subscription status: ${status}`);
       });
 
     return () => {
-      console.log('Teardown Supabase Realtime subscription...');
+      console.log(`[Tenant Realtime ${activeShopUuid}] Teardown channel...`);
       supabase.removeChannel(channel);
     };
-  }, [isSupabaseConfigured]);
+  }, [isSupabaseConfigured, currentShop?.id, currentShop?.shopId]);
 
   // Helper to load localStorage preseeds
   const restoreLocalFallback = () => {

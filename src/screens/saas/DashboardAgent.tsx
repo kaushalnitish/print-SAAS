@@ -395,6 +395,8 @@ export const DashboardAgent: React.FC = () => {
         paperSize: 'a4' as 'a4',
         sideMode: 'double' as 'double',
         status: 'submitted' as any,
+        shop_id: currentShop.id,
+        shopId: currentShop.shopId,
         timestamp: 'Just now'
       };
 
@@ -416,6 +418,29 @@ export const DashboardAgent: React.FC = () => {
   const executeMockSpool = async (job: any) => {
     setIsProcessingJob(true);
     setProcessingJobId(job.id);
+
+    // Runtime Job Validation: Ensure job belongs strictly to paired desktop agent's shop!
+    const agentShopUuid = currentShop.id;
+    const agentShopId = currentShop.shopId;
+    const jobShopTarget = job.shop_id || job.shopId;
+
+    if (jobShopTarget && jobShopTarget !== agentShopUuid && jobShopTarget !== agentShopId) {
+      const timestamp = new Date().toLocaleTimeString();
+      setTerminalLogs(prev => [
+        ...prev,
+        { 
+          id: Date.now().toString(), 
+          text: `[SECURITY REJECTION] Job '${job.id}' REJECTED! Mismatched tenant shop ID. Job target '${jobShopTarget}' != Agent paired shop '${agentShopUuid || agentShopId}'. Spool cancelled.`, 
+          type: 'error', 
+          timestamp 
+        }
+      ]);
+      
+      await updateJobStatus(currentShop.id, job.id, 'cancelled');
+      setIsProcessingJob(false);
+      setProcessingJobId(null);
+      return;
+    }
 
     const defaultPrinter = printers.find(p => p.isDefault) || printers[0] || { name: 'HP LaserJet Default' };
     const timestamp = new Date().toLocaleTimeString();
